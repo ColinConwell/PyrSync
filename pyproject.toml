@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "pysync"
+version = "0.1.0"
+description = "Enhanced rsync wrapper with native VCS and .gitignore support"
+authors = ["Colin Conwell"]
+readme = "README.md"
+packages = [{include = "pysync"}]
+license = "MIT"
+repository = "https://github.com/colinconwell/PySyncPack"
+documentation = "https://github.com/colinconwell/PySyncPack#readme"
+keywords = ["rsync", "sync", "git", "vcs", "backup"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.scripts]
+pysync = "pysync.rsync:cli_main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 
