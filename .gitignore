@@ -12,10 +12,10 @@ ipython_config.py
 .Trashes
 Thumbs.db
 
+# Sphinx
+_build/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Sphinx
-_build/
