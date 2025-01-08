@@ -6,8 +6,10 @@ An enhanced rsync wrapper with native VCS and .gitignore support, providing both
 
 ## Features
 
-- Native .gitignore / CVS support
-- Additional .syncignore support
+- Smart ignore file handling:
+  - Native support for `.gitignore` and `.syncignore`
+  - Optional CVS exclude patterns
+  - Flexible parsing options for ignore files
 - Common dev exclusions by default
 - Both CLI + Python API interfaces
 - SSH support for remote syncing
@@ -41,17 +43,20 @@ chmod +x cli_install.sh
 ### Command Line
 
 ```bash
-# Basic usage
+# Basic usage (automatically uses .gitignore and .syncignore if present)
 pysync source/ destination/
 
-# With .gitignore support (default)
-pysync source/ destination/
+# Specify custom ignore files
+pysync source/ destination/ --ignore-files .customignore .npmignore
 
-# Disable .gitignore support
-pysync source/ destination/ --no-gitignore
+# Parse ignore files and add as explicit excludes
+pysync source/ destination/ --parse-ignore-files
 
-# Use custom ignore file
-pysync source/ destination/ --ignore-file .syncignore
+# Enable CVS exclude patterns
+pysync source/ destination/ --use-cvs-exclude
+
+# Combine options
+pysync source/ destination/ --ignore-files .customignore --parse-ignore-files --use-cvs-exclude
 
 # Remote sync with SSH
 pysync source/ user@remote:destination/
@@ -65,13 +70,32 @@ pysync source/ destination/ --dry-run
 ```python
 from pysync.rsync import make_rsync_command, execute_rsync
 
-# Generate rsync command
+# Basic usage (uses .gitignore and .syncignore by default)
+cmd = make_rsync_command("source/", "destination/")
+
+# Custom ignore files with explicit parsing
+cmd = make_rsync_command(
+    source="source/",
+    target="destination/",
+    ignore_files=['.customignore', '.npmignore'],
+    parse_ignore_files=True
+)
+
+# With CVS exclude patterns
+cmd = make_rsync_command(
+    source="source/",
+    target="destination/",
+    use_cvs_exclude=True
+)
+
+# Additional options
 cmd = make_rsync_command(
     source="source/",
     target="destination/",
     dry_run=True,
-    ignore_file=".gitignore",
-    use_gitignore=True
+    max_size='10M',
+    delete=True,
+    exclude=['*.pyc', 'node_modules/']
 )
 
 # Execute the command
