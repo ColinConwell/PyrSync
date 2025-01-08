@@ -30,6 +30,53 @@ def parse_ignore_file(file_path: Union[str, Path]) -> List[str]:
                 patterns.append(line)
     return patterns
 
+def get_ignore_patterns(ignore_files: Optional[Union[str, List[str]]] = None, 
+                       include_defaults: bool = True,
+                       as_list: bool = False,
+                       verbose: bool = False) -> Union[List[str], Set[str]]:
+    """
+    Parse ignore files and return exclusion patterns.
+    
+    Args:
+        ignore_files: Ignore file(s) to parse. Can be a string or list.
+                     (default: ['.gitignore', '.syncignore'])
+        include_defaults: Whether to include default exclusions (default: True)
+        as_list: Return as list instead of set (default: False)
+        verbose: Print patterns as they're found (default: False)
+    
+    Returns:
+        Set or List of exclusion patterns
+    """
+    if ignore_files is None:
+        ignore_files = ['.gitignore', '.syncignore']
+    elif isinstance(ignore_files, str):
+        ignore_files = [ignore_files]
+    
+    patterns: Set[str] = set()
+    
+    # Add patterns from ignore files
+    for ignore_file in ignore_files:
+        if os.path.exists(ignore_file):
+            file_patterns = parse_ignore_file(ignore_file)
+            if verbose:
+                print(f"\nPatterns from {ignore_file}:")
+                for pattern in file_patterns:
+                    print(f"  {pattern}")
+            patterns.update(file_patterns)
+    
+    # Add default exclusions if requested
+    if include_defaults:
+        if verbose:
+            print("\nDefault exclusion patterns:")
+        for key, values in RSYNC_EXCLUSIONS.items():
+            values = _fix_exclusions(values, key)
+            if verbose:
+                for value in values:
+                    print(f"  {value}")
+            patterns.update(values)
+    
+    return list(patterns) if as_list else patterns
+
 def _fix_exclusions(exclusions: List[str], exclusion_type: str) -> List[str]:
     """Fix exclusion patterns based on type."""
     fixed = exclusions.copy()
@@ -43,7 +90,7 @@ def _fix_exclusions(exclusions: List[str], exclusion_type: str) -> List[str]:
     return fixed
 
 def make_rsync_command(source: str, target: str, dry_run: bool = True,
-                      ignore_files: Optional[List[str]] = None,
+                      ignore_files: Optional[Union[str, List[str]]] = None,
                       parse_ignore_files: bool = False,
                       **kwargs) -> Union[str, List[str]]:
     """
@@ -53,7 +100,8 @@ def make_rsync_command(source: str, target: str, dry_run: bool = True,
         source: source path
         target: target path
         dry_run: Whether to do a dry run
-        ignore_files: List of ignore files to use (default: ['.gitignore', '.syncignore'])
+        ignore_files: Ignore file(s) to use. Can be a string or list.
+                     (default: ['.gitignore', '.syncignore'])
         parse_ignore_files: If True, parse ignore files and add as --exclude, else use filter
         **kwargs: Additional arguments including:
             - max_size: Maximum file size
@@ -78,20 +126,24 @@ def make_rsync_command(source: str, target: str, dry_run: bool = True,
     # Handle ignore files
     if ignore_files is None:
         ignore_files = ['.gitignore', '.syncignore']
+    elif isinstance(ignore_files, str):
+        ignore_files = [ignore_files]
     
     # Track all exclusion patterns to avoid duplicates
     exclusion_patterns: Set[str] = set()
     
     # Add patterns from ignore files
-    for ignore_file in ignore_files:
-        if os.path.exists(ignore_file):
-            if parse_ignore_files:
-                patterns = parse_ignore_file(ignore_file)
-                for pattern in patterns:
-                    if pattern not in exclusion_patterns:
-                        rsync_cmd.append(f"--exclude='{pattern}'")
-                        exclusion_patterns.add(pattern)
-            else:
+    if parse_ignore_files:
+        # Get all patterns from ignore files and defaults
+        patterns = get_ignore_patterns(ignore_files, include_defaults=False)
+        for pattern in patterns:
+            if pattern not in exclusion_patterns:
+                rsync_cmd.append(f"--exclude='{pattern}'")
+                exclusion_patterns.add(pattern)
+    else:
+        # Use filter mechanism
+        for ignore_file in ignore_files:
+            if os.path.exists(ignore_file):
                 rsync_cmd.append(f"--filter=':- {ignore_file}'")
     
     # Add default exclusions
@@ -127,15 +179,37 @@ def make_rsync_command(source: str, target: str, dry_run: bool = True,
     
     return rsync_cmd if kwargs.pop('as_list', False) else ' '.join(rsync_cmd)
 
-def execute_rsync(command: Union[str, List[str]], verbose: bool = True) -> int:
-    """Execute rsync command and return exit code."""
+def execute_rsync(command: Union[str, List[str]], verbose: bool = True, 
+                  dry_run: Optional[bool] = None) -> int:
+    """
+    Execute rsync command and return exit code.
+    
+    Args:
+        command: The rsync command as string or list
+        verbose: Whether to print the command before execution
+        dry_run: Override dry-run setting. If None, uses the setting from command.
+                If True/False, adds/removes --dry-run flag regardless of command setting.
+    """
     if isinstance(command, list):
-        command = ' '.join(command)
+        cmd_list = command
+    else:
+        cmd_list = command.split()
+    
+    # Handle dry-run override if specified
+    if dry_run is not None:
+        # Remove existing dry-run flag if present
+        cmd_list = [arg for arg in cmd_list if arg != '--dry-run']
+        # Add dry-run flag if requested
+        if dry_run:
+            cmd_list.insert(1, '--dry-run')  # Insert after 'rsync'
+    
+    # Convert back to string
+    final_cmd = ' '.join(cmd_list)
     
     if verbose:
-        print(f"Executing: {command}")
+        print(f"Executing: {final_cmd}")
     
-    return subprocess.call(command, shell=True)
+    return subprocess.call(final_cmd, shell=True)
 
 def cli_main():
     """Entry point for command-line usage."""
@@ -153,6 +227,8 @@ def cli_main():
                        help='Use CVS exclude patterns')
     parser.add_argument('--dry-run', action='store_true', 
                        help='Show command without executing')
+    parser.add_argument('--show-patterns', action='store_true',
+                       help='Show patterns that would be excluded')
     parser.add_argument('--version', action='version', 
                        version=f'pysync {__version__}')
     
@@ -160,6 +236,11 @@ def cli_main():
     known_args, rsync_args = parser.parse_known_args()
     
     try:
+        # If just showing patterns, do that and exit
+        if known_args.show_patterns:
+            get_ignore_patterns(known_args.ignore_files, verbose=True)
+            return 0
+        
         paths = [arg for arg in rsync_args if not arg.startswith('-')]
         if len(paths) != 2:
             raise ValueError("Exactly two paths (source and destination) are required")
