@@ -7,11 +7,20 @@ readme = "README.md"
 packages = [{include = "pysync"}]
 license = "MIT"
 repository = "https://github.com/colinconwell/PySync"
-documentation = "https://github.com/colinconwell/PySync#readme"
+documentation = "https://colinconwell.github.io/PySync"
 keywords = ["rsync", "sync", "git", "ssh", "backup"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^7.1.0"
+pydata-sphinx-theme = "^0.14.0"
+sphinx-copybutton = "^0.5.2"
+sphinx-autobuild = "^2024.2.4"
 
 [tool.poetry.scripts]
 pysync = "pysync.rsync:cli_main"
