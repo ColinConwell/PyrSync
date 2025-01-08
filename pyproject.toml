@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "pysync"
 version = "0.1.0"
-description = "Enhanced rsync wrapper with native VCS and .gitignore support"
+description = "Enhanced Python wrapper for easier (r)-syncing"
 authors = ["Colin Conwell"]
 readme = "README.md"
 packages = [{include = "pysync"}]
 license = "MIT"
-repository = "https://github.com/colinconwell/PySyncPack"
-documentation = "https://github.com/colinconwell/PySyncPack#readme"
-keywords = ["rsync", "sync", "git", "vcs", "backup"]
+repository = "https://github.com/colinconwell/PySync"
+documentation = "https://github.com/colinconwell/PySync#readme"
+keywords = ["rsync", "sync", "git", "ssh", "backup"]
 
 [tool.poetry.dependencies]
 python = "^3.8"

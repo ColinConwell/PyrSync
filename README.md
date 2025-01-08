@@ -1,6 +1,6 @@
-# PySyncPack
+# Py
 
-An enhanced rsync wrapper with native VCS and .gitignore support, providing both a Python API and a command-line interface.
+An enhanced rsync wrapper, providing both a Python API and a command-line interface.
 
 *Caveat Emptor*: The code in this package was developed and tested by a human, but may still contain bugs. Documentation was written largely by a machine (Claude 3.5 Sonnet), and may contain errors.
 
@@ -20,13 +20,13 @@ An enhanced rsync wrapper with native VCS and .gitignore support, providing both
 ### Using pip (Recommended)
 
 ```bash
-pip install git+https://github.com/colinconwell/PySyncPack.git
+pip install git+https://github.com/colinconwell/PySync.git
 ```
 
 ### Using Poetry
 
 ```bash
-poetry add git+https://github.com/colinconwell/PySyncPack.git
+poetry add git+https://github.com/colinconwell/PySync.git
 ```
 
 ### CLI Tool Only
@@ -34,7 +34,7 @@ poetry add git+https://github.com/colinconwell/PySyncPack.git
 If you only want the command-line tool without installing the Python package:
 
 ```bash
-curl -O https://raw.githubusercontent.com/colinconwell/PySyncPack/main/scripts/cli_install.sh
+curl -O https://raw.githubusercontent.com/colinconwell/PySync/main/scripts/cli_install.sh
 chmod +x cli_install.sh
 ./cli_install.sh install
 ```
@@ -75,7 +75,7 @@ pysync source/ destination/ --dry-run
 ### Python API
 
 ```python
-from pysync.rsync import make_rsync_command, execute_rsync, get_ignore_patterns
+from pysync import make_rsync_command, execute_rsync, get_ignore_patterns
 
 # Basic usage (uses .gitignore and .syncignore by default)
 cmd = make_rsync_command("source/", "destination/")
@@ -145,7 +145,7 @@ To contribute or modify the package:
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Clone the repository
-git clone https://github.com/colinconwell/PySyncPack.git
+git clone https://github.com/colinconwell/PySync.git
 cd PySyncPack
 
 # Install dependencies
