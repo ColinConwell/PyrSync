@@ -1,4 +1,4 @@
-# Py
+# PySync: Python + Rsync
 
 An enhanced rsync wrapper, providing both a Python API and a command-line interface.
 

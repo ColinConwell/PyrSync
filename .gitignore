@@ -1,6 +1,9 @@
 # Specific paths
 xyzopt/
 
+# IDE / editor
+.vscode/
+
 # Jupyter / iPython
 .ipynb_checkpoints
 profile_default/
