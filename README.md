@@ -1,6 +1,6 @@
-# PySync: Python + Rsync
+# PyrSync: Python + Rsync
 
-An enhanced rsync wrapper, providing both a Python API and a command-line interface.
+An enhanced Python wrapper for [`rsync`](https://rsync.samba.org/), providing both a Python API and a command-line interface.
 
 *Caveat Emptor*: The code in this package was developed and tested by a human, but may still contain bugs. Documentation was written largely by a machine (Claude 3.5 Sonnet), and may contain errors.
 
@@ -20,13 +20,13 @@ An enhanced rsync wrapper, providing both a Python API and a command-line interf
 ### Using pip (Recommended)
 
 ```bash
-pip install git+https://github.com/colinconwell/PySync.git
+pip install git+https://github.com/colinconwell/PyrSync.git
 ```
 
 ### Using Poetry
 
 ```bash
-poetry add git+https://github.com/colinconwell/PySync.git
+poetry add git+https://github.com/colinconwell/PyrSync.git
 ```
 
 ### CLI Tool Only
@@ -34,43 +34,12 @@ poetry add git+https://github.com/colinconwell/PySync.git
 If you only want the command-line tool without installing the Python package:
 
 ```bash
-curl -O https://raw.githubusercontent.com/colinconwell/PySync/main/scripts/cli_install.sh
+curl -O https://raw.githubusercontent.com/colinconwell/PyrSync/main/scripts/cli_install.sh
 chmod +x cli_install.sh
 ./cli_install.sh install
 ```
 
 ## Usage
-
-### Command Line
-
-```bash
-# Basic usage (automatically uses .gitignore and .syncignore if present)
-pysync source/ destination/
-
-# Use a single ignore file
-pysync source/ destination/ --ignore-files .customignore
-
-# Use multiple ignore files
-pysync source/ destination/ --ignore-files .customignore .npmignore
-
-# Preview patterns from a specific ignore file
-pysync --show-patterns --ignore-files .customignore
-
-# Parse ignore files and add as explicit excludes
-pysync source/ destination/ --parse-ignore-files
-
-# Enable CVS exclude patterns
-pysync source/ destination/ --use-cvs-exclude
-
-# Combine options
-pysync source/ destination/ --ignore-files .customignore --parse-ignore-files --use-cvs-exclude
-
-# Remote sync with SSH
-pysync source/ user@remote:destination/
-
-# Dry run to see what would be synced
-pysync source/ destination/ --dry-run
-```
 
 ### Python API
 
@@ -136,6 +105,37 @@ execute_rsync(cmd, dry_run=True)  # Test run
 execute_rsync(cmd)  # Actual execution
 ```
 
+### Command Line
+
+```bash
+# Basic usage (automatically uses .gitignore and .syncignore if present)
+pysync source/ destination/
+
+# Use a single ignore file
+pysync source/ destination/ --ignore-files .customignore
+
+# Use multiple ignore files
+pysync source/ destination/ --ignore-files .customignore .npmignore
+
+# Preview patterns from a specific ignore file
+pysync --show-patterns --ignore-files .customignore
+
+# Parse ignore files and add as explicit excludes
+pysync source/ destination/ --parse-ignore-files
+
+# Enable CVS exclude patterns
+pysync source/ destination/ --use-cvs-exclude
+
+# Combine options
+pysync source/ destination/ --ignore-files .customignore --parse-ignore-files --use-cvs-exclude
+
+# Remote sync with SSH
+pysync source/ user@remote:destination/
+
+# Dry run to see what would be synced
+pysync source/ destination/ --dry-run
+```
+
 ## Development
 
 To contribute or modify the package:
@@ -145,8 +145,8 @@ To contribute or modify the package:
 curl -sSL https://install.python-poetry.org | python3 -
 
 # Clone the repository
-git clone https://github.com/colinconwell/PySync.git
-cd PySyncPack
+git clone https://github.com/colinconwell/PyrSync.git
+cd PyrSync
 
 # Install dependencies
 poetry install

@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "pysync"
+name = "pyrsync"
 version = "0.1.0"
 description = "Enhanced Python wrapper for easier (r)-syncing"
 authors = ["Colin Conwell"]
 readme = "README.md"
-packages = [{include = "pysync"}]
+packages = [{include = "pyrsync"}]
 license = "MIT"
-repository = "https://github.com/colinconwell/PySync"
-documentation = "https://colinconwell.github.io/PySync"
+repository = "https://github.com/colinconwell/PyrSync"
+documentation = "https://colinconwell.github.io/PyrSync"
 keywords = ["rsync", "sync", "git", "ssh", "backup"]
 
 [tool.poetry.dependencies]
@@ -23,7 +23,7 @@ sphinx-copybutton = "^0.5.2"
 sphinx-autobuild = "^2024.2.4"
 
 [tool.poetry.scripts]
-pysync = "pysync.rsync:cli_main"
+pyrsync = "pyrsync.source:cli_main"
 
 [build-system]
 requires = ["poetry-core"]

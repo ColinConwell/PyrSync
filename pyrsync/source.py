@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-PySyncPack - Enhanced rsync wrapper with native VCS and .gitignore support
+PyrSync - Enhanced rsync wrapper with native VCS and .gitignore support
 Can be used both as a Python module and as a command-line tool.
 """
 
@@ -23,8 +23,8 @@ def parse_ignore_file(file_path: Union[str, Path]) -> List[str]:
     if not os.path.exists(file_path):
         return patterns
     
-    with open(file_path, 'r') as f:
-        for line in f:
+    with open(file_path, 'r') as file:
+        for line in file:
             line = line.strip()
             if line and not line.startswith('#'):
                 patterns.append(line)
@@ -197,11 +197,9 @@ def execute_rsync(command: Union[str, List[str]], verbose: bool = True,
     
     # Handle dry-run override if specified
     if dry_run is not None:
-        # Remove existing dry-run flag if present
         cmd_list = [arg for arg in cmd_list if arg != '--dry-run']
-        # Add dry-run flag if requested
         if dry_run:
-            cmd_list.insert(1, '--dry-run')  # Insert after 'rsync'
+            cmd_list.insert(1, '--dry-run')
     
     # Convert back to string
     final_cmd = ' '.join(cmd_list)
@@ -260,8 +258,8 @@ def cli_main():
             
         return execute_rsync(cmd)
         
-    except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
+    except Exception as error:
+        print(f"Error: {str(error)}", file=sys.stderr)
         return 1
 
 if __name__ == '__main__':

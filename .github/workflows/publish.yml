@@ -2,11 +2,22 @@ name: Publish to PyPI
 
 on:
   release:
-    types: [created]
+    types: [created, prereleased]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target repository'
+        required: true
+        default: 'testpypi'
+        type: choice
+        options:
+        - pypi
+        - testpypi
 
 jobs:
-  deploy:
+  deploy-pypi:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'pypi' || (github.event_name == 'release' && github.event.action == 'created')
     steps:
     - uses: actions/checkout@v3
     
@@ -20,10 +31,35 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
     
-    - name: Build and publish
+    - name: Build and publish to PyPI
       env:
         PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
       run: |
         poetry config pypi-token.pypi $PYPI_TOKEN
         poetry build
         poetry publish
+
+  deploy-testpypi:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'testpypi') || github.event_name == 'push'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+    
+    - name: Build and publish to TestPyPI
+      env:
+        TESTPYPI_TOKEN: ${{ secrets.TESTPYPI_TOKEN }}
+      run: |
+        poetry config repositories.testpypi https://test.pypi.org/legacy/
+        poetry config pypi-token.testpypi $TESTPYPI_TOKEN
+        poetry build
+        poetry publish -r testpypi
